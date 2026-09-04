@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>New Tab</title>
+<style>
+  /* Synthwave start page for Helium. Self-contained -- no network, no fonts,
+     no images (the sun + grid are pure CSS). Managed by /etc/nixos
+     (assets/helium-newtab.html); served to the browser as a file:// URL via
+     the RestoreOnStartup / HomepageLocation policies in configuration.nix. */
+  :root{
+    --bg:#1a1025; --bg2:#0d0614;
+    --pink:#ff2e88; --cyan:#05d9e8; --purple:#b967ff; --fg:#f4eaff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--bg);
+    color:var(--fg);
+    font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    overflow:hidden;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+  }
+
+  /* --- backdrop: sun + horizon grid --- */
+  .scene{position:fixed;inset:0;z-index:0;overflow:hidden}
+  .sun{
+    position:absolute;left:50%;top:26%;width:40vmin;height:40vmin;
+    transform:translate(-50%,-50%);border-radius:50%;
+    background:linear-gradient(#ffe66d,#ff2e88 55%,#b967ff);
+    box-shadow:0 0 25vmin 2vmin rgba(255,46,136,.35);
+    animation:sunpulse 5s ease-in-out infinite;
+  }
+  @keyframes sunpulse{
+    50%{box-shadow:0 0 32vmin 3vmin rgba(255,46,136,.5)}
+  }
+  .sun::after{ /* horizontal cutout bars */
+    content:"";position:absolute;inset:0;border-radius:50%;
+    background:repeating-linear-gradient(
+      to bottom, transparent 0 6%, var(--bg) 6% 8.5%);
+    mask:linear-gradient(to bottom, transparent 45%, #000 46%);
+    -webkit-mask:linear-gradient(to bottom, transparent 45%, #000 46%);
+  }
+  .grid{
+    position:absolute;left:-25%;right:-25%;bottom:-10vmin;height:55vh;
+    background-image:
+      linear-gradient(rgba(5,217,232,.55) 2px, transparent 2px),
+      linear-gradient(90deg, rgba(185,103,255,.45) 2px, transparent 2px);
+    background-size:100% 3.2vmin, 4vmin 100%;
+    transform:perspective(38vmin) rotateX(74deg);
+    transform-origin:bottom center;
+    mask:linear-gradient(to top, #000 30%, transparent 92%);
+    -webkit-mask:linear-gradient(to top, #000 30%, transparent 92%);
+    animation:gridflow 1.5s linear infinite;
+  }
+  @keyframes gridflow{
+    to{background-position:0 3.2vmin, 0 0}
+  }
+  .haze{position:absolute;inset:0;background:
+    radial-gradient(120% 70% at 50% 8%, transparent 40%, var(--bg2) 100%)}
+  /* faint CRT scanlines over the whole scene */
+  .scanlines{
+    position:absolute;inset:0;pointer-events:none;opacity:.35;
+    background:repeating-linear-gradient(
+      to bottom, rgba(0,0,0,.16) 0 1px, transparent 1px 3px);
+  }
+  @media (prefers-reduced-motion:reduce){
+    .grid,.sun{animation:none}
+  }
+
+  /* --- foreground --- */
+  main{position:relative;z-index:1;width:min(560px,86vw);text-align:center}
+  .clock{
+    font-variant-numeric:tabular-nums;font-weight:700;letter-spacing:.04em;
+    font-size:clamp(3rem,11vw,6rem);
+    color:#fff;text-shadow:0 0 18px rgba(5,217,232,.7),0 0 40px rgba(255,46,136,.5);
+  }
+  .date{margin-top:.25rem;color:var(--purple);text-transform:uppercase;letter-spacing:.28em;font-size:.8rem}
+  form{margin-top:2.2rem;position:relative}
+  input{
+    width:100%;padding:.9rem 1.1rem;border-radius:999px;
+    background:rgba(36,23,54,.72);color:var(--fg);
+    border:1px solid rgba(185,103,255,.5);outline:none;font-size:1rem;
+    backdrop-filter:blur(4px);
+    transition:border-color .15s, box-shadow .15s;
+  }
+  input::placeholder{color:#9c86bf}
+  input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(5,217,232,.18)}
+  .links{margin-top:1.6rem;display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center}
+  .links a{
+    text-decoration:none;color:var(--fg);
+    padding:.4rem .85rem;border-radius:999px;font-size:.85rem;
+    background:rgba(36,23,54,.6);border:1px solid rgba(107,73,132,.6);
+    transition:border-color .15s,color .15s,transform .1s;
+  }
+  .links a:hover{border-color:var(--pink);color:#fff;transform:translateY(-1px)}
+</style>
+</head>
+<body>
+  <div class="scene" aria-hidden="true">
+    <div class="sun"></div>
+    <div class="grid"></div>
+    <div class="haze"></div>
+    <div class="scanlines"></div>
+  </div>
+
+  <main>
+    <div class="clock" id="clock">--:--</div>
+    <div class="date" id="date"></div>
+
+    <form id="f" method="get" action="https://duckduckgo.com/">
+      <input id="q" name="q" type="text" autocomplete="off" autofocus
+             placeholder="search the web...">
+    </form>
+
+    <nav class="links">
+      <a href="https://github.com">github</a>
+      <a href="https://news.ycombinator.com">hn</a>
+      <a href="https://www.youtube.com">youtube</a>
+      <a href="https://search.nixos.org/packages">nixpkgs</a>
+      <a href="https://reddit.com">reddit</a>
+    </nav>
+  </main>
+
+<script>
+  const pad = n => String(n).padStart(2, "0");
+  const clock = document.getElementById("clock");
+  const date  = document.getElementById("date");
+  function tick(){
+    const d = new Date();
+    clock.textContent = pad(d.getHours()) + ":" + pad(d.getMinutes());
+    date.textContent = d.toLocaleDateString(undefined,
+      { weekday:"long", day:"numeric", month:"long" });
+  }
+  tick(); setInterval(tick, 15000);
+  document.getElementById("q").focus();
+</script>
+</body>
+</html>

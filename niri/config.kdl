@@ -1,0 +1,347 @@
+// niri config.kdl -- managed by home-manager (see ~/nixos-config/home.nix).
+// Do not edit ~/.config/niri/config.kdl directly, it's a symlink into the
+// Nix store and will be overwritten on the next `nixos-rebuild switch`.
+// Edit this file instead, then rebuild.
+//
+// Based on niri's own default-config.kdl, with:
+//   - kitty as the terminal (Mod+Return, Mod+T)
+//   - noctalia IPC wired up for launcher/lock/control-center/OSD (see
+//     https://docs.noctalia.dev -> Compositor Settings -> Niri)
+//   - dual-monitor layout: KTC 200Hz on the left, Samsung on the right
+//   - synthwave focus-ring color
+
+input {
+    keyboard {
+        xkb {
+            layout "us"
+        }
+        numlock
+    }
+
+    touchpad {
+        tap
+        natural-scroll
+    }
+
+    mouse {
+    }
+
+    // Focus whatever window the pointer is over, no click needed.
+    focus-follows-mouse
+}
+
+// Run `niri msg outputs` after logging into niri to see the exact modes
+// niri detected. If a monitor comes up blank or at the wrong mode, see
+// the "Monitors" section of the generated nixos-flake-niri skill.
+
+output "DP-2" {
+    // KTC monitor: 2560x1440, native panel mode, confirmed 200Hz preferred
+    // mode via `kscreen-doctor -o` (marked with `*`) before this switch.
+    mode "2560x1440@200.000"
+    position x=0 y=0
+}
+
+output "DP-3" {
+    // Samsung monitor. We previously forced 1920x1080@165Hz here via niri's
+    // custom-mode support (the panel's EDID only advertises up to 144Hz).
+    // The link couldn't hold that pixel clock: niri's log showed DP-3
+    // connecting then dropping again roughly every 10 seconds in a loop
+    // ("disconnecting connector DP-3" / "missing surface in vblank
+    // callback"), which also made the whole session feel unresponsive.
+    //
+    // Reverted to 144Hz, which is the panel's EDID-preferred mode and
+    // syncs cleanly. If you want to retry 165Hz later, use a
+    // DisplayPort (not HDMI) cable rated for it and put back:
+    //   mode custom=true "1920x1080@165.000"
+    // Exact string from `niri msg outputs` ("1920x1080@143.998 (preferred)")
+    // -- niri warns "configured mode could not be found" if this doesn't
+    // match a listed mode verbatim, then falls back to preferred anyway.
+    mode "1920x1080@143.998"
+    position x=2560 y=0
+}
+
+// Ask apps to skip their own title bars / window decorations (CSD). niri
+// draws no server-side title bars itself, so with this set, GTK/Qt/etc.
+// windows come up with no title bar. (A few apps ignore the hint and draw
+// one anyway -- nothing niri can do about those.)
+prefer-no-csd
+
+layout {
+    gaps 16
+    center-focused-column "never"
+
+    preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+    }
+
+    default-column-width { proportion 0.5; }
+
+    // Dark synthwave accent: hot pink focus ring, muted purple when inactive.
+    focus-ring {
+        width 2
+        active-color "#ff2e88"
+        inactive-color "#3d2a5c"
+    }
+
+    border {
+        off
+        width 2
+        active-color "#05d9e8"
+        inactive-color "#3d2a5c"
+    }
+
+    shadow {
+        on
+        softness 30
+        spread 5
+        offset x=0 y=5
+        color "#0d0614cc"
+    }
+
+    struts {
+    }
+}
+
+// noctalia is started by its systemd user service (home.nix:
+// programs.noctalia.systemd.enable = true), so we do NOT also spawn it
+// here -- doing both raced two copies against each other and spammed
+// "noctalia is already running" in the journal.
+// spawn-at-startup "noctalia"
+
+hotkey-overlay {
+}
+
+screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+
+animations {
+}
+
+// Recommended by Noctalia: https://docs.noctalia.dev -> Compositor Settings -> Niri
+window-rule {
+    geometry-corner-radius 20
+    clip-to-geometry true
+}
+
+// niri 26.04+ supports blur, and noctalia auto-publishes blur regions for
+// its layer surfaces (bar, panels, dock, notifications, OSD) whenever
+// ext-background-effects is available -- so they blur even with no
+// layer-rule. This turns that off across every noctalia surface; the bar
+// islands are solid-filled and read better without it.
+// https://docs.noctalia.dev -> Compositor Settings -> Niri -> Blur
+layer-rule {
+    match namespace="^noctalia-"
+    background-effect {
+        blur false
+    }
+}
+
+window-rule {
+    match app-id="dev.noctalia.Noctalia"
+    open-floating true
+    default-column-width { fixed 1080; }
+    default-window-height { fixed 920; }
+}
+
+window-rule {
+    match app-id=r#"firefox$"# title="^Picture-in-Picture$"
+    open-floating true
+}
+
+// niri wiki, "Application Issues" -> Steam: keeps notification toasts out
+// of the way instead of popping up centre-screen. Doesn't touch the
+// "Storage" settings page closing on click -- that's Steam's own CEF/GPU
+// web-view bug, fixed in Steam itself: Settings -> Interface -> turn off
+// "Enable GPU accelerated rendering in web views" -> restart Steam.
+window-rule {
+    match app-id="steam" title=r#"^notificationtoasts_\d+_desktop$"#
+    default-floating-position x=10 y=10 relative-to="bottom-right"
+}
+
+debug {
+    honor-xdg-activation-with-invalid-serial
+}
+
+binds {
+    Mod+Shift+Slash { show-hotkey-overlay; }
+
+    // --- Apps ---
+    Mod+Return  hotkey-overlay-title="Open a Terminal: kitty" { spawn "kitty"; }
+    Mod+T       hotkey-overlay-title="Open a Terminal: kitty" { spawn "kitty"; }
+    Mod+B       hotkey-overlay-title="Browser: Helium" { spawn "helium"; }
+    Mod+Delete  hotkey-overlay-title="Files: Dolphin" { spawn "dolphin"; }
+    Mod+D       hotkey-overlay-title="Discord" { spawn "discord"; }
+    Mod+S       hotkey-overlay-title="Steam" { spawn "steam"; }
+    // PWAs (helium --app windows). See the pwa/*.desktop entries generated
+    // in home.nix; keep the URLs there and here in sync.
+    Mod+Shift+B hotkey-overlay-title="Basecamp (PWA)" { spawn-sh "helium --app=https://app.basecamp.com"; }
+
+    // --- Noctalia IPC ---
+    // https://docs.noctalia.dev -> Compositor Settings -> Niri
+    // Launcher is Mod+Space only now (Mod+D reassigned to Discord). Control
+    // center has no keybind (Mod+S -> Steam) -- click / right-click the bar.
+    Mod+Space       hotkey-overlay-title="Launcher" { spawn-sh "noctalia msg panel-toggle launcher"; }
+    Mod+Shift+Comma { spawn-sh "noctalia msg settings-toggle"; }
+    Alt+Tab         { spawn-sh "noctalia msg window-switcher"; }
+
+    Super+Alt+L hotkey-overlay-title="Lock the Screen" { spawn-sh "noctalia msg session lock"; }
+
+    // --- Audio & brightness (routed through Noctalia for OSD feedback) ---
+    XF86AudioRaiseVolume   allow-when-locked=true { spawn-sh "noctalia msg volume-up"; }
+    XF86AudioLowerVolume   allow-when-locked=true { spawn-sh "noctalia msg volume-down"; }
+    XF86AudioMute          allow-when-locked=true { spawn-sh "noctalia msg volume-mute"; }
+    XF86MonBrightnessUp    allow-when-locked=true { spawn-sh "noctalia msg brightness-up"; }
+    XF86MonBrightnessDown  allow-when-locked=true { spawn-sh "noctalia msg brightness-down"; }
+
+    // --- Media keys (needs playerctl, installed via home.packages) ---
+    XF86AudioPlay  allow-when-locked=true { spawn-sh "playerctl play-pause"; }
+    XF86AudioPause allow-when-locked=true { spawn-sh "playerctl play-pause"; }
+    XF86AudioStop  allow-when-locked=true { spawn-sh "playerctl stop"; }
+    XF86AudioPrev  allow-when-locked=true { spawn-sh "playerctl previous"; }
+    XF86AudioNext  allow-when-locked=true { spawn-sh "playerctl next"; }
+
+    Mod+O repeat=false { toggle-overview; }
+    Mod+Q repeat=false { close-window; }
+
+    // ...-or-monitor: at the edge column/row, jump focus to the next monitor.
+    Mod+Left  { focus-column-or-monitor-left; }
+    Mod+Down  { focus-window-or-monitor-down; }
+    Mod+Up    { focus-window-or-monitor-up; }
+    Mod+Right { focus-column-or-monitor-right; }
+    Mod+H     { focus-column-or-monitor-left; }
+    Mod+J     { focus-window-or-monitor-down; }
+    Mod+K     { focus-window-or-monitor-up; }
+    Mod+L     { focus-column-or-monitor-right; }
+
+    Mod+Ctrl+Left  { move-column-left; }
+    Mod+Ctrl+Down  { move-window-down; }
+    Mod+Ctrl+Up    { move-window-up; }
+    Mod+Ctrl+Right { move-column-right; }
+    Mod+Ctrl+H     { move-column-left; }
+    Mod+Ctrl+J     { move-window-down; }
+    Mod+Ctrl+K     { move-window-up; }
+    Mod+Ctrl+L     { move-column-right; }
+
+    Mod+Home { focus-column-first; }
+    Mod+End  { focus-column-last; }
+    Mod+Ctrl+Home { move-column-to-first; }
+    Mod+Ctrl+End  { move-column-to-last; }
+
+    // Mod+Shift+<dir> moves the focused window to the next monitor;
+    // add Ctrl to just move focus there instead.
+    Mod+Shift+Left  { move-column-to-monitor-left; }
+    Mod+Shift+Down  { move-column-to-monitor-down; }
+    Mod+Shift+Up    { move-column-to-monitor-up; }
+    Mod+Shift+Right { move-column-to-monitor-right; }
+    Mod+Shift+H     { move-column-to-monitor-left; }
+    Mod+Shift+J     { move-column-to-monitor-down; }
+    Mod+Shift+K     { move-column-to-monitor-up; }
+    Mod+Shift+L     { move-column-to-monitor-right; }
+
+    Mod+Shift+Ctrl+Left  { focus-monitor-left; }
+    Mod+Shift+Ctrl+Down  { focus-monitor-down; }
+    Mod+Shift+Ctrl+Up    { focus-monitor-up; }
+    Mod+Shift+Ctrl+Right { focus-monitor-right; }
+    Mod+Shift+Ctrl+H     { focus-monitor-left; }
+    Mod+Shift+Ctrl+J     { focus-monitor-down; }
+    Mod+Shift+Ctrl+K     { focus-monitor-up; }
+    Mod+Shift+Ctrl+L     { focus-monitor-right; }
+
+    Mod+Page_Down      { focus-workspace-down; }
+    Mod+Page_Up        { focus-workspace-up; }
+    Mod+U              { focus-workspace-down; }
+    Mod+I              { focus-workspace-up; }
+    Mod+Ctrl+Page_Down { move-column-to-workspace-down; }
+    Mod+Ctrl+Page_Up   { move-column-to-workspace-up; }
+    Mod+Ctrl+U         { move-column-to-workspace-down; }
+    Mod+Ctrl+I         { move-column-to-workspace-up; }
+
+    Mod+Shift+Page_Down { move-workspace-down; }
+    Mod+Shift+Page_Up   { move-workspace-up; }
+    Mod+Shift+U         { move-workspace-down; }
+    Mod+Shift+I         { move-workspace-up; }
+
+    Mod+WheelScrollDown      cooldown-ms=150 { focus-workspace-down; }
+    Mod+WheelScrollUp        cooldown-ms=150 { focus-workspace-up; }
+    Mod+Ctrl+WheelScrollDown cooldown-ms=150 { move-column-to-workspace-down; }
+    Mod+Ctrl+WheelScrollUp   cooldown-ms=150 { move-column-to-workspace-up; }
+
+    Mod+WheelScrollRight      { focus-column-right; }
+    Mod+WheelScrollLeft       { focus-column-left; }
+    Mod+Ctrl+WheelScrollRight { move-column-right; }
+    Mod+Ctrl+WheelScrollLeft  { move-column-left; }
+
+    Mod+Shift+WheelScrollDown      { focus-column-right; }
+    Mod+Shift+WheelScrollUp        { focus-column-left; }
+    Mod+Ctrl+Shift+WheelScrollDown { move-column-right; }
+    Mod+Ctrl+Shift+WheelScrollUp   { move-column-left; }
+
+    Mod+1 { focus-workspace 1; }
+    Mod+2 { focus-workspace 2; }
+    Mod+3 { focus-workspace 3; }
+    Mod+4 { focus-workspace 4; }
+    Mod+5 { focus-workspace 5; }
+    Mod+6 { focus-workspace 6; }
+    Mod+7 { focus-workspace 7; }
+    Mod+8 { focus-workspace 8; }
+    Mod+9 { focus-workspace 9; }
+    Mod+Ctrl+1 { move-column-to-workspace 1; }
+    Mod+Ctrl+2 { move-column-to-workspace 2; }
+    Mod+Ctrl+3 { move-column-to-workspace 3; }
+    Mod+Ctrl+4 { move-column-to-workspace 4; }
+    Mod+Ctrl+5 { move-column-to-workspace 5; }
+    Mod+Ctrl+6 { move-column-to-workspace 6; }
+    Mod+Ctrl+7 { move-column-to-workspace 7; }
+    Mod+Ctrl+8 { move-column-to-workspace 8; }
+    Mod+Ctrl+9 { move-column-to-workspace 9; }
+
+    // Mod+[ / Mod+] shrink / grow the focused column by 10% (you asked for
+    // this). consume-or-expel-window moved to Mod+Shift+[ / Mod+Shift+] so
+    // it's still reachable; Mod+, / Mod+. below do the closely-related
+    // consume/expel-into-column.
+    Mod+BracketLeft  { set-column-width "-10%"; }
+    Mod+BracketRight { set-column-width "+10%"; }
+    Mod+Shift+BracketLeft  { consume-or-expel-window-left; }
+    Mod+Shift+BracketRight { consume-or-expel-window-right; }
+    Mod+Comma  { consume-window-into-column; }
+    Mod+Period { expel-window-from-column; }
+
+    Mod+R       { switch-preset-column-width; }
+    Mod+Shift+R { switch-preset-column-width-back; }
+    Mod+Ctrl+Shift+R { switch-preset-window-height; }
+    Mod+Ctrl+R { reset-window-height; }
+
+    Mod+F { maximize-column; }
+    Mod+Shift+F { fullscreen-window; }
+    Mod+M { maximize-window-to-edges; }
+    Mod+Ctrl+F { expand-column-to-available-width; }
+    Mod+C { center-column; }
+    Mod+Ctrl+C { center-visible-columns; }
+
+    Mod+Minus { set-column-width "-10%"; }
+    Mod+Equal { set-column-width "+10%"; }
+    Mod+Shift+Minus { set-window-height "-10%"; }
+    Mod+Shift+Equal { set-window-height "+10%"; }
+
+    Mod+V       { toggle-window-floating; }
+    Mod+Shift+V { switch-focus-between-floating-and-tiling; }
+    Mod+W       { toggle-column-tabbed-display; }
+
+    // Mod+Shift+S = interactive region screenshot (you asked for this,
+    // Windows-style). Print-key variants kept as fallbacks.
+    Mod+Shift+S { screenshot; }
+    Print { screenshot; }
+    Mod+Shift+Ctrl+S { screenshot-screen; }
+    Ctrl+Print { screenshot-screen; }
+    Mod+Shift+Alt+S { screenshot-window; }
+    Alt+Print { screenshot-window; }
+
+    Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
+
+    Mod+Shift+E { quit; }
+    Ctrl+Alt+Delete { quit; }
+    Mod+BackSpace hotkey-overlay-title="Lock the Screen" { spawn-sh "noctalia msg session lock"; }
+
+    Mod+Shift+P { power-off-monitors; }
+}
