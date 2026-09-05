@@ -1,6 +1,9 @@
 { config, pkgs, lib, inputs, ... }:
 
 let
+  synthwave = import ./synthwave-palette.nix;
+  sw = slot: "#${synthwave.${slot}}";
+
   pwas = {
     basecamp = {
       name = "Basecamp";
@@ -64,6 +67,11 @@ let
       sha256 = "sha256-hbHxTk2R7nul1zbUVJwqwTGba8uyep8c2/+APrpjs54=";
     };
   };
+
+  qylockLockFixed = pkgs.writeShellScriptBin "qylock-lock-mm" ''
+    export QT_PLUGIN_PATH="${pkgs.qt6.qtmultimedia}/lib/qt-6/plugins''${QT_PLUGIN_PATH:+:$QT_PLUGIN_PATH}"
+    exec /run/current-system/sw/bin/qylock-lock "$@"
+  '';
 in
 
 {
@@ -84,20 +92,36 @@ in
     mangohud
     dolphin-emu
 
-    xwayland-satellite
+    inputs.nixpkgs-xwayland-satellite-0-8-1.legacyPackages.${pkgs.stdenv.hostPlatform.system}.xwayland-satellite
 
-    discord
+    vesktop
     zoom-us
     gnome-disk-utility
     obs-studio
 
+    lightworks
+
     playerctl
+    mpv
 
     zsh-completions
     fzf
+
+    age
+
+    qylockLockFixed
+
+    cmatrix
+    asciiquarium
   ];
 
   xdg.configFile."niri/config.kdl".source = ./niri/config.kdl;
+
+  stylix.targets = {
+    noctalia.enable = false;
+    noctalia-shell.enable = false;
+    neovim.enable = false;
+  };
 
   programs.noctalia = {
     enable = true;
@@ -136,7 +160,7 @@ in
         margin_edge       = 6;
         margin_ends       = 8;
         padding           = 8;
-        widget_spacing    = 22;
+        widget_spacing    = 6;
         font_weight       = 600;
 
         capsule           = true;
@@ -146,13 +170,13 @@ in
         capsule_padding   = 8.0;
 
         start  = [ ];
-        center = [ "nixos_menu" "workspaces" "group:tools" "clock" "audio_visualizer" "group:status" ];
+        center = [ "nixos_menu" "workspaces" "group:tools" "clock" "audio_visualizer" "tray" "group:status" ];
         end    = [ ];
 
         capsule_group = [
           { id = "tools";  members = [ "launcher" "settings" "screenshot" "caffeine" "nightlight" ];
             widget_spacing = 4; }
-          { id = "status"; members = [ "tray" "notifications" "network" "bluetooth" "volume" "power_profile" "control-center" "session" ];
+          { id = "status"; members = [ "notifications" "network" "dns_switcher" "bluetooth" "volume" "power_profile" "control-center" "session" ];
             widget_spacing = 4; }
         ];
       };
@@ -173,10 +197,11 @@ in
           "nixos"
           "helium"
           "org.kde.dolphin"
-          "discord"
+          "vesktop"
           "basecamp"
           "google-messages"
           "com.obsproject.Studio"
+          "lightworks"
           "steam"
           "limusic"
           "kitty"
@@ -190,9 +215,16 @@ in
         font_weight = 700;
       };
 
+      widget.tray = { match_adjacent_spacing = false; capsule = false; scale = 0.85; };
+
       widget.network    = { show_label = false; };
       widget.volume     = { show_label = false; };
       widget.bluetooth  = { show_label = false; };
+
+      widget.dns_switcher = {
+        type        = "nightwatch75/dns-switcher:dns-switcher";
+        show_label  = false;
+      };
 
       widget.audio_visualizer = {
         width   = 60;
@@ -209,6 +241,7 @@ in
 
       plugins = {
         enabled = [
+          "nightwatch75/dns-switcher"
         ];
         auto_update = "all";
         source = [
@@ -222,21 +255,21 @@ in
 
     customPalettes.Synthwave = {
       dark = {
-        mPrimary = "#ff2e88";
+        mPrimary = sw "base0D";
         mOnPrimary = "#1a1025";
-        mSecondary = "#05d9e8";
+        mSecondary = sw "base0C";
         mOnSecondary = "#1a1025";
-        mTertiary = "#b967ff";
+        mTertiary = sw "base0E";
         mOnTertiary = "#1a1025";
-        mError = "#ff3860";
+        mError = sw "base08";
         mOnError = "#1a1025";
-        mSurface = "#1a1025";
-        mOnSurface = "#f4eaff";
-        mSurfaceVariant = "#241736";
+        mSurface = sw "base00";
+        mOnSurface = sw "base05";
+        mSurfaceVariant = sw "base01";
         mOnSurfaceVariant = "#d9c7ff";
-        mOutline = "#6b4984";
+        mOutline = sw "base03";
         mShadow = "#0d0614";
-        mHover = "#2e1d47";
+        mHover = sw "base02";
         mOnHover = "#ffffff";
         terminal = {
           background = "#1a1025";
@@ -272,64 +305,22 @@ in
 
   programs.kitty = {
     enable = true;
-    font = {
-      name = "JetBrainsMono Nerd Font";
-      size = 12;
-    };
     settings = {
-      background_opacity = "0.92";
       confirm_os_window_close = 0;
-
       cursor_trail = 1;
       cursor_trail_decay = "0.1 0.4";
       cursor_trail_start_threshold = 1;
     };
-    extraConfig = ''
-      background            #1a1025
-      foreground            #f4eaff
-      cursor                #ff2e88
-      cursor_text_color     #1a1025
-      selection_background  #3d2a5c
-      selection_foreground  #f4eaff
-
-      url_color #05d9e8
-
-      color0  #241736
-      color8  #6b4984
-
-      color1  #ff2e88
-      color9  #ff6ec7
-
-      color2  #05d9e8
-      color10 #72f1b8
-
-      color3  #f9c80e
-      color11 #ffe66d
-
-      color4  #2de2e6
-      color12 #6bf1ff
-
-      color5  #b967ff
-      color13 #d9a7ff
-
-      color6  #05d9e8
-      color14 #7afcff
-
-      color7  #f4eaff
-      color15 #ffffff
-    '';
   };
 
   programs.fastfetch = {
     enable = true;
     settings = {
       logo = {
-        type = "file";
-        source = ./assets/fastfetch-logo.txt;
+        type = "auto";
+        source = ./assets/fastfetch-logo.png;
+        width = 22;
         padding = { top = 1; left = 2; right = 3; };
-        color = {
-          "1" = "38;2;255;46;136";
-        };
       };
 
       display = {
@@ -353,6 +344,12 @@ in
         { type = "os";       key = "󱄅 distro "; keyColor = "38;2;255;46;136"; }
         { type = "kernel";   key = " kernel "; keyColor = "38;2;255;46;136"; }
         { type = "uptime";   key = "󰔠 uptime "; keyColor = "38;2;255;46;136"; }
+        {
+          type = "command";
+          key = "󰃭 age    ";
+          keyColor = "38;2;255;46;136";
+          text = ''d=$(( ($(date +%s) - $(stat -c %W /)) / 86400 )); [ "$d" = 1 ] && echo "1 day" || echo "$d days"'';
+        }
         "break"
 
         { type = "custom";   format = "{#38;2;5;217;232}━━━━  desktop  ━━━━{#}"; }
@@ -408,24 +405,15 @@ in
     enable = true;
     settings = {
       add_newline = true;
-      palette = "synthwave";
-
-      palettes.synthwave = {
-        pink = "#ff2e88";
-        cyan = "#05d9e8";
-        purple = "#b967ff";
-        yellow = "#f9c80e";
-        red = "#ff3860";
-      };
 
       character = {
-        success_symbol = "[❯](bold cyan)";
-        error_symbol = "[❯](bold red)";
-        vimcmd_symbol = "[❮](bold purple)";
+        success_symbol = "[❯](bold base0C)";
+        error_symbol = "[❯](bold base08)";
+        vimcmd_symbol = "[❮](bold base0E)";
       };
 
       directory = {
-        style = "bold pink";
+        style = "bold base0D";
         truncation_length = 3;
         truncate_to_repo = true;
         read_only = " ";
@@ -433,20 +421,20 @@ in
 
       git_branch = {
         symbol = " ";
-        style = "cyan";
+        style = "base0C";
       };
-      git_status.style = "purple";
-      git_state.style = "purple";
+      git_status.style = "base0E";
+      git_state.style = "base0E";
 
       cmd_duration = {
         min_time = 500;
-        style = "yellow";
+        style = "base0A";
         format = "[ $duration]($style) ";
       };
 
       nix_shell = {
         symbol = " ";
-        style = "purple";
+        style = "base0E";
         format = "[$symbol$name]($style) ";
       };
     };
@@ -529,92 +517,12 @@ in
   gtk = {
     enable = true;
     gtk2.force = true;
-    font = {
-      name = "JetBrainsMono Nerd Font";
-      size = 10;
-    };
-    theme = {
-      name = "Adwaita-dark";
-      package = pkgs.gnome-themes-extra;
-    };
-
-    gtk4.extraCss = ''
-      @define-color accent_color             #ff77b6;
-      @define-color accent_bg_color          #ff2e88;
-      @define-color accent_fg_color          #1a1025;
-
-      @define-color destructive_color        #ff6b9d;
-      @define-color destructive_bg_color     #ff2e6b;
-      @define-color destructive_fg_color     #1a1025;
-
-      @define-color success_color            #05d9e8;
-      @define-color success_bg_color         #05d9e8;
-      @define-color success_fg_color         #1a1025;
-
-      @define-color warning_color            #ffc857;
-      @define-color warning_bg_color         #ffc857;
-      @define-color warning_fg_color         #1a1025;
-
-      @define-color error_color              #ff6b9d;
-      @define-color error_bg_color           #ff2e6b;
-      @define-color error_fg_color           #1a1025;
-
-      @define-color window_bg_color          #1a1025;
-      @define-color window_fg_color          #f4eaff;
-      @define-color view_bg_color            #150c1f;
-      @define-color view_fg_color            #f4eaff;
-      @define-color headerbar_bg_color       #241736;
-      @define-color headerbar_fg_color       #f4eaff;
-      @define-color headerbar_border_color   #f4eaff;
-      @define-color headerbar_backdrop_color #1a1025;
-      @define-color headerbar_shade_color    rgba(13, 6, 20, 0.55);
-      @define-color popover_bg_color         #241736;
-      @define-color popover_fg_color         #f4eaff;
-      @define-color dialog_bg_color          #241736;
-      @define-color dialog_fg_color          #f4eaff;
-      @define-color card_bg_color            rgba(244, 234, 255, 0.05);
-      @define-color card_fg_color            #f4eaff;
-      @define-color card_shade_color         rgba(13, 6, 20, 0.55);
-      @define-color sidebar_bg_color         #150c1f;
-      @define-color sidebar_fg_color         #f4eaff;
-      @define-color sidebar_backdrop_color   #1a1025;
-      @define-color sidebar_border_color     rgba(244, 234, 255, 0.10);
-      @define-color thumbnail_bg_color       #241736;
-      @define-color thumbnail_fg_color       #f4eaff;
-      @define-color shade_color              rgba(13, 6, 20, 0.55);
-      @define-color scrollbar_outline_color  rgba(13, 6, 20, 0.60);
-      @define-color borders                  rgba(244, 234, 255, 0.12);
-
-      row.activatable:selected {
-        box-shadow: inset 3px 0 0 0 @accent_bg_color;
-      }
-    '';
-
-    gtk3.extraCss = ''
-      @define-color accent_color            #ff77b6;
-      @define-color accent_bg_color         #ff2e88;
-      @define-color accent_fg_color         #1a1025;
-      @define-color theme_selected_bg_color #ff2e88;
-      @define-color theme_selected_fg_color #1a1025;
-      @define-color theme_bg_color          #1a1025;
-      @define-color theme_base_color        #150c1f;
-      @define-color theme_fg_color          #f4eaff;
-      @define-color theme_text_color        #f4eaff;
-      @define-color insensitive_bg_color    #241736;
-      @define-color window_bg_color         #1a1025;
-      @define-color view_bg_color           #150c1f;
-      @define-color headerbar_bg_color      #241736;
-      @define-color borders                 rgba(244, 234, 255, 0.12);
-    '';
     iconTheme = {
       name = "Tela-pink-dark";
       package = pkgs.tela-icon-theme;
     };
   };
-  qt = {
-    enable = true;
-    platformTheme.name = "gtk3";
-  };
+  qt.enable = true;
 
   xdg.configFile."gtk-3.0/settings.ini".force = true;
   xdg.configFile."gtk-4.0/settings.ini".force = true;
@@ -660,8 +568,26 @@ in
       Categories=AudioVideo;Audio;Music;
     '';
 
+    "applications/lightworks.desktop".text = ''
+      [Desktop Entry]
+      Type=Application
+      Name=Lightworks
+      GenericName=Video editor
+      Comment=Cross-platform film & video editor
+      Exec=env LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 ${pkgs.lightworks}/bin/lightworks
+      Icon=${pkgs.lightworks.fhsenv}/usr/share/lightworks/Icons/App.png
+      StartupWMClass=Ntcardvt
+      Terminal=false
+      Categories=AudioVideo;AudioVideoEditing;
+    '';
+
     "dolphin-emu/Styles/synthwave.qss".source = ./assets/dolphin-emu/synthwave.qss;
   };
+
+  home.activation.kdeIconTheme =
+    lib.hm.dag.entryAfter [ "stylixLookAndFeel" ] ''
+      run ${pkgs.crudini}/bin/crudini --set "${config.xdg.configHome}/kdeglobals" Icons Theme "Tela-pink-dark"
+    '';
 
   home.activation.dolphinUserStyle =
     lib.hm.dag.entryAfter [ "writeBoundary" ] ''
@@ -673,14 +599,6 @@ in
       run $_crudini --set "$_cfg/Qt.ini"      userstyle name       synthwave.qss
       run $_crudini --set "$_cfg/Dolphin.ini" Interface ThemeName  "Clean Pink"
     '';
-
-  home.pointerCursor = {
-    enable = true;
-    name = "Adwaita";
-    package = pkgs.adwaita-icon-theme;
-    size = 24;
-    gtk.enable = true;
-  };
 
   fonts.fontconfig.enable = true;
 

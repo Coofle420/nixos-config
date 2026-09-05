@@ -114,7 +114,7 @@ binds {
     Mod+T       hotkey-overlay-title="Open a Terminal: kitty" { spawn "kitty"; }
     Mod+B       hotkey-overlay-title="Browser: Helium" { spawn "helium"; }
     Mod+Delete  hotkey-overlay-title="Files: Dolphin" { spawn "dolphin"; }
-    Mod+D       hotkey-overlay-title="Discord" { spawn "discord"; }
+    Mod+D       hotkey-overlay-title="Discord" { spawn "vesktop"; }
     Mod+S       hotkey-overlay-title="Steam" { spawn "steam"; }
     Mod+Shift+B hotkey-overlay-title="Basecamp (PWA)" { spawn-sh "helium --app=https://app.basecamp.com"; }
 
@@ -122,7 +122,7 @@ binds {
     Mod+Shift+Comma { spawn-sh "noctalia msg settings-toggle"; }
     Alt+Tab         { spawn-sh "noctalia msg window-switcher"; }
 
-    Super+Alt+L hotkey-overlay-title="Lock the Screen" { spawn-sh "noctalia msg session lock"; }
+    Super+Alt+L hotkey-overlay-title="Lock the Screen" { spawn-sh "qylock-lock-mm"; }
 
     XF86AudioRaiseVolume   allow-when-locked=true { spawn-sh "noctalia msg volume-up"; }
     XF86AudioLowerVolume   allow-when-locked=true { spawn-sh "noctalia msg volume-down"; }
@@ -267,7 +267,7 @@ binds {
 
     Mod+Shift+E { quit; }
     Ctrl+Alt+Delete { quit; }
-    Mod+BackSpace hotkey-overlay-title="Lock the Screen" { spawn-sh "noctalia msg session lock"; }
+    Mod+BackSpace hotkey-overlay-title="Lock the Screen" { spawn-sh "qylock-lock-mm"; }
 
     Mod+Shift+P { power-off-monitors; }
 }

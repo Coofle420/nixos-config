@@ -1,6 +1,8 @@
 { config, lib, pkgs, inputs, ... }:
 
 let
+  synthwave = import ./synthwave-palette.nix;
+
   heliumSynthwaveTheme =
     pkgs.writeTextFile {
       name = "helium-synthwave-theme";
@@ -110,6 +112,63 @@ in
     enable = true;
     recommendedServices.enable = true;
   };
+
+  stylix = {
+    enable = true;
+    polarity = "dark";
+    image = ./assets/synthwave-grid.png;
+    base16Scheme = synthwave;
+
+    cursor = {
+      name = "Adwaita";
+      package = pkgs.adwaita-icon-theme;
+      size = 24;
+    };
+
+    opacity.terminal = 0.92;
+
+    fonts = {
+      monospace = {
+        package = pkgs.nerd-fonts.jetbrains-mono;
+        name = "JetBrainsMono Nerd Font Mono";
+      };
+      sansSerif = {
+        package = pkgs.nerd-fonts.jetbrains-mono;
+        name = "JetBrainsMono Nerd Font";
+      };
+      serif = {
+        package = pkgs.nerd-fonts.jetbrains-mono;
+        name = "JetBrainsMono Nerd Font";
+      };
+      emoji = {
+        package = pkgs.noto-fonts-color-emoji;
+        name = "Noto Color Emoji";
+      };
+      sizes = {
+        terminal = 12;
+        applications = 10;
+        desktop = 10;
+        popups = 10;
+      };
+    };
+  };
+
+  programs.qylock = {
+    enable = true;
+    theme = "last-of-us";
+  };
+
+  services.displayManager.sddm.settings.General.GreeterEnvironment =
+    let
+      qt6Pkgs = [ pkgs.kdePackages.qtdeclarative pkgs.kdePackages.qt5compat
+                  pkgs.kdePackages.qtmultimedia pkgs.kdePackages.qtsvg ];
+      qmlPath    = lib.concatMapStringsSep ":" (p: "${p}/lib/qt-6/qml") qt6Pkgs;
+      pluginPath = lib.concatMapStringsSep ":" (p: "${p}/lib/qt-6/plugins") qt6Pkgs;
+    in lib.concatStringsSep "," [
+      "QML2_IMPORT_PATH=${qmlPath}"
+      "QML_IMPORT_PATH=${qmlPath}"
+      "QT_PLUGIN_PATH=${pluginPath}"
+    ];
 
   virtualisation.libvirtd = {
     enable = true;

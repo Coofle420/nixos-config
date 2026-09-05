@@ -27,9 +27,23 @@
     };
 
     chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
+
+    qylock = {
+      url = "github:Darkkal44/qylock";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    stylix = {
+      url = "github:nix-community/stylix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # pinned old rev: 0.8.2 broke dropdown/context-menu rendering under niri
+    # (xwayland-satellite#491, #468) -- unpin once upstream fixes it
+    nixpkgs-xwayland-satellite-0-8-1.url = "github:NixOS/nixpkgs/cc60bc3b0c247c161f70ea3a96039ccee5b6bd68";
   };
 
-  outputs = { self, nixpkgs, home-manager, noctalia, chaotic, helium-flake, ... }@inputs:
+  outputs = { self, nixpkgs, home-manager, noctalia, chaotic, helium-flake, qylock, stylix, ... }@inputs:
     {
       nixosConfigurations.eeepy = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
@@ -39,6 +53,8 @@
           noctalia.nixosModules.default
           chaotic.nixosModules.default
           helium-flake.nixosModules.default
+          qylock.nixosModules.default
+          stylix.nixosModules.stylix
 
           home-manager.nixosModules.home-manager
           {
