@@ -523,7 +523,6 @@ in
     };
   };
   qt.enable = true;
-  stylix.targets.qt.platform = "qtct";
 
   xdg.configFile."gtk-3.0/settings.ini".force = true;
   xdg.configFile."gtk-4.0/settings.ini".force = true;
