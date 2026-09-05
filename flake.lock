@@ -294,7 +294,9 @@
         "nixpkgs": [
           "nixpkgs"
         ],
-        "noctalia": "noctalia"
+        "noctalia": [
+          "noctalia"
+        ]
       },
       "locked": {
         "lastModified": 1787922244,
@@ -359,27 +361,6 @@
       }
     },
     "noctalia": {
-      "inputs": {
-        "nixpkgs": [
-          "kineticwe",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1786562724,
-        "narHash": "sha256-a2qnW1hQVkZN1GAkl0pkwS62NCP3KURnPXQxjG5T5rg=",
-        "owner": "noctalia-dev",
-        "repo": "noctalia",
-        "rev": "0bf29dd9e202234cdc7fcfa6f75e938bd7fd724a",
-        "type": "github"
-      },
-      "original": {
-        "owner": "noctalia-dev",
-        "repo": "noctalia",
-        "type": "github"
-      }
-    },
-    "noctalia_2": {
       "inputs": {
         "nixpkgs": [
           "nixpkgs"
@@ -454,7 +435,7 @@
         "kineticwe": "kineticwe",
         "nixpkgs": "nixpkgs_2",
         "nixpkgs-xwayland-satellite-0-8-1": "nixpkgs-xwayland-satellite-0-8-1",
-        "noctalia": "noctalia_2",
+        "noctalia": "noctalia",
         "qylock": "qylock",
         "stylix": "stylix"
       }

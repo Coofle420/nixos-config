@@ -41,6 +41,7 @@
     kineticwe = {
       url = "gitlab:theblackdon/kineticwe";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.noctalia.follows = "noctalia";
     };
 
     # pinned old rev: 0.8.2 broke dropdown/context-menu rendering under niri
