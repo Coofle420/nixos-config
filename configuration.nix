@@ -46,12 +46,19 @@ in
   ];
 
   boot.loader.systemd-boot.enable = true;
+  boot.loader.systemd-boot.configurationLimit = 10;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.kernelPackages = pkgs.linuxPackages_cachyos;
 
   hardware.amdgpu.initrd.enable = true;
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.trusted-users = [ "root" "kenny" ];
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 14d";
+  };
 
   networking.hostName = "eeepy";
   networking.networkmanager.enable = true;
@@ -62,6 +69,7 @@ in
   services.xserver.enable = true;
   services.displayManager.sddm.enable = true;
   services.desktopManager.plasma6.enable = true;
+  security.pam.services.sddm.enableGnomeKeyring = true;
 
   services.xserver.xkb = {
     layout = "us";
