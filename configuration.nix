@@ -71,6 +71,8 @@ in
   services.desktopManager.plasma6.enable = true;
   security.pam.services.sddm.enableGnomeKeyring = true;
 
+  programs.kineticwe.enable = true;
+
   services.xserver.xkb = {
     layout = "us";
     variant = "";
