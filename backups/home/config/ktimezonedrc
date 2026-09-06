@@ -1,0 +1,4 @@
+[TimeZones]
+LocalZone=America/Vancouver
+ZoneinfoDir=/etc/zoneinfo
+Zonetab=/etc/zoneinfo/zone.tab

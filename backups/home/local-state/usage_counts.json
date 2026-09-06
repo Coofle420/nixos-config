@@ -1,0 +1,30 @@
+{
+  "Applications": {
+    "/etc/profiles/per-user/kenny/share/applications/com.obsproject.Studio.desktop": 3,
+    "/etc/profiles/per-user/kenny/share/applications/com.vysp3r.ProtonPlus.desktop": 3,
+    "/etc/profiles/per-user/kenny/share/applications/davinci-resolve.desktop": 2,
+    "/etc/profiles/per-user/kenny/share/applications/dev.noctalia.Noctalia.desktop": 1,
+    "/etc/profiles/per-user/kenny/share/applications/discord.desktop": 7,
+    "/etc/profiles/per-user/kenny/share/applications/kitty.desktop": 4,
+    "/etc/profiles/per-user/kenny/share/applications/org.gnome.DiskUtility.desktop": 3,
+    "/etc/profiles/per-user/kenny/share/applications/qt6ct.desktop": 1,
+    "/etc/profiles/per-user/kenny/share/applications/systemsettings.desktop": 8,
+    "/etc/profiles/per-user/kenny/share/applications/vesktop.desktop": 4,
+    "/home/kenny/.local/share/applications/chrome-hpfldicfbfomlpcikngkocigghgafkph-Default.desktop": 1,
+    "/home/kenny/.local/share/applications/chrome-nbcopffeanpomgfeccnbakllkmjlknkn-Default.desktop": 1,
+    "/home/kenny/.local/share/applications/lightworks.desktop": 3,
+    "/home/kenny/.local/share/applications/limusic.desktop": 2,
+    "/home/kenny/.local/share/applications/nixos.desktop": 1,
+    "/run/current-system/sw/share/applications/firefox.desktop": 5,
+    "/run/current-system/sw/share/applications/helium.desktop": 8,
+    "/run/current-system/sw/share/applications/org.kde.discover.desktop": 4,
+    "/run/current-system/sw/share/applications/org.kde.dolphin.desktop": 10,
+    "/run/current-system/sw/share/applications/org.kde.drkonqi.coredump.gui.desktop": 1,
+    "/run/current-system/sw/share/applications/org.kde.konsole.desktop": 3,
+    "/run/current-system/sw/share/applications/steam.desktop": 17,
+    "/run/current-system/sw/share/applications/systemsettings.desktop": 3,
+    "/run/current-system/sw/share/applications/virt-manager.desktop": 8,
+    "/run/current-system/sw/share/applications/xterm.desktop": 1,
+    "/var/lib/flatpak/exports/share/applications/com.rtosta.zapzap.desktop": 1
+  }
+}

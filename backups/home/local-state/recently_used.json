@@ -1,0 +1,24 @@
+{
+  "Applications": [
+    "/run/current-system/sw/share/applications/steam.desktop",
+    "/etc/profiles/per-user/kenny/share/applications/vesktop.desktop",
+    "/run/current-system/sw/share/applications/virt-manager.desktop",
+    "/etc/profiles/per-user/kenny/share/applications/systemsettings.desktop",
+    "/run/current-system/sw/share/applications/firefox.desktop",
+    "/etc/profiles/per-user/kenny/share/applications/org.gnome.DiskUtility.desktop",
+    "/etc/profiles/per-user/kenny/share/applications/dev.noctalia.Noctalia.desktop",
+    "/etc/profiles/per-user/kenny/share/applications/kitty.desktop",
+    "/run/current-system/sw/share/applications/org.kde.konsole.desktop",
+    "/run/current-system/sw/share/applications/org.kde.discover.desktop",
+    "/run/current-system/sw/share/applications/systemsettings.desktop",
+    "/etc/profiles/per-user/kenny/share/applications/qt6ct.desktop",
+    "/run/current-system/sw/share/applications/helium.desktop",
+    "/home/kenny/.local/share/applications/lightworks.desktop",
+    "/etc/profiles/per-user/kenny/share/applications/davinci-resolve.desktop",
+    "/etc/profiles/per-user/kenny/share/applications/com.obsproject.Studio.desktop",
+    "/run/current-system/sw/share/applications/org.kde.dolphin.desktop",
+    "/home/kenny/.local/share/applications/limusic.desktop",
+    "/etc/profiles/per-user/kenny/share/applications/com.vysp3r.ProtonPlus.desktop",
+    "/run/current-system/sw/share/applications/xterm.desktop"
+  ]
+}
